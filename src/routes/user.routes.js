@@ -41,13 +41,13 @@ userRouter.route('/logout').post(verifyJWT, logoutUser);
 userRouter.route('/refresh-token').post(refreshAccessToken);
 userRouter.route('/change-password').post(verifyJWT, changeCurrentPassword);
 userRouter.route('/get-current-user').post(verifyJWT, getCurrentUser);
-userRouter.route('/update-account-details').post(verifyJWT, updateAccountDetails);
-userRouter.route('/update-avatar-image').post(
+userRouter.route('/update-account-details').patch(verifyJWT, updateAccountDetails);
+userRouter.route('/update-avatar-image').patch(
     verifyJWT,
     upload.single("avatarImage"),
     updateAvatarImage
 );
-userRouter.route('/update-cover-image').post(
+userRouter.route('/update-cover-image').patch(
     verifyJWT, 
     upload.single("coverImage"),
     updateCoverImage

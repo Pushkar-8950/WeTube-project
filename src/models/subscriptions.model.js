@@ -12,4 +12,10 @@ const subscriptionsSchema = new Schema({
     }
 }, {timestamps: true})
 
-export const subscription = mongoose.model("subscription", subscriptionsSchema);
+// Compound unique index (same user same channel ko duplicate subscribe nahi kar sakta.)
+subscriptionsSchema.index(
+    { subscriber: 1, channel: 1 },
+    { unique: true }
+);
+
+export const Subscription = mongoose.model("Subscription", subscriptionsSchema);
