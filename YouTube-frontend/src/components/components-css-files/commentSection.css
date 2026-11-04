@@ -1,0 +1,203 @@
+/* Main comment section */
+.comment-section {
+    width: 100%;
+    color: #f1f1f1;
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 20px;
+}
+
+/* Header */
+.top-left-navbar-cmts-section {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.total-comments {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.top-left-navbar-cmts-section svg {
+    cursor: pointer;
+}
+
+/* Add comment section */
+.add-new-cmt-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 28px;
+}
+
+/* User avatar */
+.user-avatar-section {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+}
+
+.add-new-cmt-section > div:first-child img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Input area */
+.write-and-post-cmt-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.write-cmt-section {
+    width: 100%;
+}
+
+.cmt-input-box {
+    display: block;
+    width: 100%;
+    padding: 8px 0;
+    color: #f1f1f1;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #717171;
+    border-radius: 0;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-bottom 0.15s ease;
+}
+
+.cmt-input-box::placeholder {
+    color: #aaa;
+}
+
+.cmt-input-box:focus {
+    border-bottom: 2px solid #f1f1f1;
+}
+
+/* Post options */
+.post-options-cmt-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 12px;
+}
+
+.post-options-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Emoji section */
+.add-emoji-section {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.add-emoji-section > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: #f1f1f1;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.add-emoji-section > button:hover {
+    background: #272727;
+}
+
+/* Emoji picker positioning */
+.add-emoji-section .EmojiPickerReact {
+    position: absolute !important;
+    bottom: 45px;
+    left: 0;
+    z-index: 100;
+}
+
+/* Cancel button */
+.cancel-post-btn {
+    padding: 9px 16px;
+    color: #f1f1f1;
+    background: transparent;
+    border: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cancel-post-btn:hover {
+    background: #272727;
+}
+
+/* Comment button */
+.post-cmt-btn {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.post-cmt-btn.inactive {
+    color: #aaa;
+    background: #272727;
+    cursor: not-allowed;
+}
+
+.post-cmt-btn.active {
+    color: #0f0f0f;
+    background: #3ea6ff;
+    cursor: pointer;
+}
+
+.post-cmt-btn.active:hover {
+    background: #65b8ff;
+}
+
+/* Comments list */
+.comments-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+}
+
+/* Infinite scroll */
+.comment-sentinel {
+    width: 100%;
+    height: 20px;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .add-new-cmt-section {
+        gap: 10px;
+    }
+
+    .add-new-cmt-section > div:first-child {
+        width: 32px;
+        height: 32px;
+    }
+
+    .top-left-navbar-cmts-section {
+        gap: 16px;
+    }
+
+    .post-options-section {
+        gap: 4px;
+    }
+}

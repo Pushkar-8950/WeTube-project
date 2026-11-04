@@ -1,0 +1,474 @@
+/* ==============================
+   Global Reset
+================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* ==============================
+   Main Page
+================================= */
+
+.login-page {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+
+/* ==============================
+   Split Screen: 20% / 80%
+================================= */
+
+.parent-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+/* Login panel: 1/5 of the screen */
+.credentials-container {
+    width: 20%;
+    height: 100%;
+    flex: 0 0 20%;
+    min-width: 280px;
+
+    padding: 7vh 2.2vw 24px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+    background: #ffffff;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.credentials-container::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* ==============================
+   Brand Name
+================================= */
+
+.headerName {
+    display: block;
+    margin-bottom: 32px;
+
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -1px;
+
+    color: #171717;
+}
+
+
+/* ==============================
+   Login Heading
+================================= */
+
+.headerStatement {
+    display: block;
+    margin-bottom: 12px;
+
+    font-size: 23px;
+    font-weight: 600;
+    line-height: 1.3;
+
+    color: #202020;
+}
+
+
+/* ==============================
+   Signup Prompt
+================================= */
+
+.new-user-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+
+    margin-bottom: 25px;
+}
+
+.new-user-header-statment {
+    font-size: 13px;
+    color: #666666;
+}
+
+.sign-up-btn {
+    padding: 0;
+    border: none;
+    background: transparent;
+
+    color: #a96536;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.sign-up-btn:hover {
+    text-decoration: underline;
+}
+
+
+/* ==============================
+   Google Authentication
+================================= */
+
+.google-auth-btn {
+    width: 100%;
+    min-height: 44px;
+    flex-shrink: 0;
+
+    border: 1px solid #d5d5d5;
+    border-radius: 5px;
+
+    background: #ffffff;
+    color: #303030;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.google-auth-btn:hover {
+    background: #f7f7f7;
+    border-color: #aaaaaa;
+}
+
+
+/* ==============================
+   OR Separator
+================================= */
+
+.or-seprator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin: 22px 0;
+
+    color: #888888;
+    font-size: 13px;
+}
+
+.or-seprator::before,
+.or-seprator::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+
+    background: #e2e2e2;
+}
+
+
+/* ==============================
+   Email & Password
+================================= */
+
+.email-input-field,
+.password-input-field {
+    width: 100%;
+    height: 44px;
+    flex-shrink: 0;
+
+    padding: 0 11px;
+    margin-bottom: 16px;
+
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+
+    background: #ffffff;
+    color: #222222;
+
+    font-size: 13px;
+    outline: none;
+
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.email-input-field:focus,
+.password-input-field:focus {
+    border-color: #a96536;
+    box-shadow: 0 0 0 3px rgba(169, 101, 54, 0.13);
+}
+
+.email-input-field::placeholder,
+.password-input-field::placeholder {
+    color: #888888;
+}
+
+
+/* ==============================
+   Next Button
+================================= */
+
+.next-btn {
+    width: 100%;
+    min-height: 46px;
+    flex-shrink: 0;
+
+    margin-top: 7px;
+
+    border: none;
+    border-radius: 5px;
+
+    background: #a96536;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: background 0.2s, transform 0.2s;
+}
+
+.next-btn:hover {
+    background: #874c27;
+}
+
+.next-btn:active {
+    transform: scale(0.99);
+}
+
+
+/* ==============================
+   Right Image: 4/5 of the screen
+================================= */
+
+.image-container {
+    position: relative;
+
+    width: 80%;
+    height: 100%;
+    flex: 1 1 80%;
+    min-width: 0;
+
+    overflow: hidden;
+    background: #15100d;
+}
+
+.image-container > img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+}
+
+
+/* ==============================
+   Responsive Layout
+================================= */
+
+@media (max-width: 900px) {
+    .credentials-container {
+        width: 35%;
+        flex-basis: 35%;
+        min-width: 270px;
+        padding: 6vh 24px 24px;
+    }
+
+    .image-container {
+        width: 65%;
+        flex-basis: 65%;
+    }
+}
+
+@media (max-width: 600px) {
+    .credentials-container {
+        width: 100%;
+        flex: 1 1 100%;
+        min-width: 0;
+        max-width: none;
+
+        padding: 7vh 28px 24px;
+    }
+
+    .image-container {
+        display: none;
+    }
+
+    .headerName {
+        margin-bottom: 28px;
+    }
+}
+
+@media (max-height: 650px) {
+    .credentials-container {
+        padding-top: 4vh;
+    }
+
+    .headerName {
+        margin-bottom: 20px;
+    }
+
+    .new-user-header {
+        margin-bottom: 16px;
+    }
+
+    .or-seprator {
+        margin: 15px 0;
+    }
+
+    .email-input-field,
+    .password-input-field {
+        margin-bottom: 11px;
+    }
+}
+
+/* Image overlay and positioning */
+.image-container {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: #17100d;
+}
+
+.image-container > img {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Darken the image for readable text */
+.image-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    display: flex;
+    /* align-items: center; */
+
+    padding: 7%;
+    padding-top: 5%;
+    color: #ffffff;
+
+    background: linear-gradient(
+        90deg,
+        rgba(12, 10, 9, 0.84) 0%,
+        rgba(20, 13, 10, 0.58) 45%,
+        rgba(20, 13, 10, 0.08) 100%
+    );
+}
+
+.hero-content {
+    width: min(520px, 75%);
+}
+
+.hero-eyebrow {
+    display: inline-block;
+    margin-bottom: 24px;
+
+    color: #d9a47c;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+}
+
+.hero-content h1 {
+    margin: 0 0 22px;
+
+    font-size: clamp(34px, 4vw, 64px);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -1.8px;
+}
+
+.hero-content h1 span {
+    color: #c68a5c;
+}
+
+.hero-description {
+    max-width: 390px;
+    margin: 0;
+
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.hero-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 36px;
+
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.hero-line {
+    width: 38px;
+    height: 2px;
+    background: #c68a5c;
+}
+
+/* Decorative brand mark */
+.hero-brand {
+    position: absolute;
+    right: 5%;
+    bottom: 5%;
+
+    color: rgba(255, 255, 255, 0.16);
+    font-size: clamp(44px, 7vw, 100px);
+    font-weight: 800;
+    letter-spacing: -6px;
+    pointer-events: none;
+}
+
+.hero-brand span {
+    color: #c68a5c;
+}
+
+/* Responsive text */
+@media (max-width: 900px) {
+    .hero-content {
+        width: 90%;
+    }
+
+    .hero-content h1 {
+        font-size: clamp(30px, 4vw, 44px);
+    }
+
+    .hero-description {
+        font-size: 14px;
+    }
+
+    .hero-brand {
+        display: none;
+    }
+}
+
+.login-error {
+    color: #c0392b;
+    font-size: 13px;
+    margin: 0px 0 12px;
+    
+}

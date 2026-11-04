@@ -1,0 +1,123 @@
+.user-comment-card {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 0;
+    color: #f1f1f1;
+    font-family: Arial, sans-serif;
+    padding-left: 15px;
+}
+
+.user-avatar-section {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #383838;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+}
+
+.user-cmt-details-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.username-and-time-section {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.username-and-time-section span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f1f1f1;
+    cursor: pointer;
+}
+
+.username-and-time-section span:hover {
+    color: white;
+}
+
+.cmt-stats {
+    margin: 0;
+    font-size: 12px;
+    color: #aaa;
+}
+
+.cmt-content-section {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.cmt-reaction-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.cmt-like-and-likeCount-section {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.like-btn,
+.dislike-btn,
+.reply-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    color: #f1f1f1;
+    background: transparent;
+    border: none;
+    border-radius: 18px;
+    cursor: pointer;
+}
+
+.like-btn,
+.dislike-btn {
+    width: 24px;
+    height: 28px;
+}
+
+.like-btn:hover,
+.dislike-btn:hover,
+.reply-btn:hover {
+    background: #272727;
+}
+
+.like-count {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.reply-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.user-avatar-section {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.user-avatar-section img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}

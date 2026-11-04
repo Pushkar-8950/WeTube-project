@@ -5,6 +5,104 @@ import ApiError from "../utils/ApiError.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import ApiResponse from "../utils/APIResponse.js"
+import { Subscription } from "../models/subscriptions.model.js"
+
+const getVideosForHomepage = asyncHandler(async (req, res) => {
+
+    const {page=1, limit=8} = req.query;
+
+    const pageNumber = Number(page) || 1, limitNumber = Number(limit) || 8;
+
+    if(!Number.isInteger(pageNumber) || !Number.isInteger(limitNumber) || pageNumber < 1 || limitNumber < 1 || limitNumber > 50) {
+        throw new ApiError(400, "Invalid pagination parameters ")
+    }
+
+    // Get videos from the DB
+    const videos = await Video.aggregate([
+        {
+            $match: {
+                isPublished: true
+            }
+        },
+        { 
+            $sort: { 
+                createdAt: -1, _id: -1 
+            } 
+        },
+        {
+            $skip: (pageNumber - 1) * limitNumber
+        },
+        {
+            $limit: limitNumber
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "ownerDetails",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "subscriptions",
+                            localField: "_id",
+                            foreignField: "channel",
+                            as: "Subscribers"
+                        }
+                    },
+                    {
+                        $addFields: {
+                            subscribersCount: {
+                                $size: "$Subscribers"
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            Subscribers: 0
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields: {
+                owner: {
+                    $arrayElemAt: ["$ownerDetails", 0]
+                }
+            }
+        },
+        {
+            $project: {
+                videoTitle: 1,
+                thumbnail: 1,
+                duration: 1,
+                views: 1,
+                owner: {
+                    username: 1,
+                    avatarImage: 1,
+                    fullName: 1,
+                    subscribersCount: 1
+                },
+                createdAt: 1,
+                videoFile: 1,
+                totalLikesCount: 1
+            }
+        }
+    ]);
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, 
+            {
+                videos, 
+                currentPage: pageNumber
+            },
+            "Video fetched successfully"
+        )
+    )
+});
 
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
@@ -160,7 +258,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
         description,
         duration: uploadedVideo.duration,
         isPublished: true,
-        owner: req.user?._id
+        owner: req.user?._id,
+        videoFile: uploadedVideo.url
     });
 
     const publishedVideo = await Video.findById(video._id);
@@ -311,5 +410,6 @@ export {
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    getVideosForHomepage
 }

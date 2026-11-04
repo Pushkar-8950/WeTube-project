@@ -34,10 +34,78 @@ const getVideoComments = asyncHandler(async (req, res) => {
             }
         },
         {
-            $skip: (Number(page) - 1) * Number(limit)
+            $facet: {
+                comments: [
+                    {
+                        $skip: (Number(page) - 1) * Number(limit)
+                    },
+                    {
+                        $limit: Number(limit)
+                    },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        username: 1,
+                                        avatarImage: 1
+                                    }
+                                }
+                            ],
+                            as: "ownerDetails"
+                        }
+                    },
+                    {
+                        $addFields: {
+                            ownerDetails: { $arrayElemAt : ["$ownerDetails", 0] }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "likes",
+                            localField: "_id",
+                            foreignField: "comment",
+                            as: "commentLikes"
+                        }
+                    },
+                    {
+                        $addFields: {
+                            totalLikes: {
+                                $size:  "$commentLikes"
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            commentLikes: 0,
+                            _id: 1,
+                            video: 0,
+                            owner: 0,
+                        }
+                    }
+                ],
+
+                metadata: [
+                    {
+                        $count: "totalComments"
+                    }
+                ]
+            }
         },
         {
-            $limit: Number(limit)
+            $project: {
+                comments: 1,
+                totalComments: {
+                    $ifNull: [
+                        { $arrayElemAt: ["$metadata.totalComments", 0] },
+                        0
+                    ]
+                }
+            }
         }
     ];
 
