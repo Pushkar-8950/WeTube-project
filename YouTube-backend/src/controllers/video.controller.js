@@ -282,11 +282,54 @@ const getVideoById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Bad request, invalid video ID")
     }
 
-    const video = await Video.findById(videoId);
-
-    if (!video) {
-        throw new ApiError(404, "Video not found");
-    }
+    const video = await Video.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(videoId)
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "ownerDetails",
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 0,
+                            username: 1,
+                            avatarImage: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "owner",
+                foreignField: "channel",
+                as: "subscribed"
+            }
+        },
+        {
+            $addFields: {
+                subscribed: {
+                    $filter: {
+                        input: "$subscribed",
+                        as: "sub",
+                        cond: {
+                            $eq: [
+                                "$$sub.subscriber",
+                                new mongoose.Types.ObjectId(req.user._id)
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    ])
 
     return res
     .status(200)

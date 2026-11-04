@@ -188,9 +188,97 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, likedVideos, "Liked videos fetched successfully"));
 })
 
+const getTotalLikesOnVideo = asyncHandler(async (req, res) => {
+
+    const {videoId} = req.params;
+
+    // validate ID
+    if(!mongoose.isValidObjectId(videoId)){
+        throw new ApiError(400, "Bad request, invalid video ID")
+    }
+
+    // Check if video ecist in DB
+    const video = await Video.findById(videoId);
+
+    if(!video){
+        throw new ApiError(404, "Video doesn't exist");
+    }
+
+    const response = await Video.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(videoId)
+            }
+        },
+        {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "video",
+                as: "likeDetails"
+            }
+        },
+        {
+            $addFields: {
+                totalLikes: {$size: "$likeDetails"}
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                totalLikes: 1
+            }
+        }
+    ])    
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, response, "Total Likes fetched successfully")
+    )
+})
+
+const isVideoLiked = asyncHandler(async (req, res) => {
+    const {videoId} = req.params
+    //TODO: toggle like on video
+
+    // Validate video ID
+    // check if video exist in DB or not
+    // check if video is already liked or not
+    // if liked, remove entry
+    // if not, add entry
+    // check if entry is created or not
+    // return response
+    if(!mongoose.isValidObjectId(videoId)){
+        throw new ApiError(400, "Bad request, invalid Video ID")
+    }
+
+    const video = await Video.findById(videoId);
+    if(!video){
+        throw new ApiError(404, "Video doesn't exist")
+    }
+
+    const entry = await Like.findOne(
+        {
+            video: videoId,
+            likedBy: req.user._id
+        }
+    );
+
+    let liked = false;
+
+    if(entry){
+        liked=true;
+    } 
+
+    return res.status(200).json(new ApiResponse(200, liked, "Checked successfully"));
+})
+
 export {
     toggleCommentLike,
     toggleTweetLike,
     toggleVideoLike,
-    getLikedVideos
+    getLikedVideos,
+    getTotalLikesOnVideo,
+    isVideoLiked
 }

@@ -30,6 +30,6 @@ videoRouter.route('/update-video-details').patch(
 );
 videoRouter.route('/delete-video').delete(verifyJWT, deleteVideo);
 videoRouter.route('/toggle-publish-status').patch(verifyJWT, togglePublishStatus);
-videoRouter.route('/get-home-videos').get(getVideosForHomepage)
+videoRouter.route('/get-home-videos').get(getVideosForHomepage);
 
 export default videoRouter;

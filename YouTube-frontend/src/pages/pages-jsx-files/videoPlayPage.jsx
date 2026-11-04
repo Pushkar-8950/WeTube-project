@@ -2,6 +2,7 @@ import Comments from "../../components/components-jsx-files/commentSection";
 import api from "../../services/api";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import VideoPlayer from "../../components/components-jsx-files/videoPlayer";
 const VideoPlayPage = () => {
     
     const {videoId} = useParams();
@@ -23,7 +24,7 @@ const VideoPlayPage = () => {
                 return;
             }
 
-            setAvatarImage(userDetails.data.data.avatrImage);
+            setAvatarImage(userDetails.data.data.avatarImage);
 
         } catch (error) {
             console.log("Error while fetching currnt user details : ", error);
@@ -38,7 +39,10 @@ const VideoPlayPage = () => {
 
     return(
         <div>
+            
+            <VideoPlayer videoId={videoId}/>
             {!fetchingCurrentUserDetails && <Comments videoId={videoId} avatarImage={avatrImage}/>}
+            
         </div>
     )
 }

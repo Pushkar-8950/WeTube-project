@@ -207,8 +207,32 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     ) 
 })
 
+const getSubscribersCount = asyncHandler(async (req, res) => {
+    const {channelId} = req.params
+
+    // Validate channel ID
+    // Check if channel/user exist or not
+
+    if(!mongoose.isValidObjectId(channelId)){
+        throw new ApiError(400, "Bad request, invalid channel ID")
+    }
+
+    const channel = await User.findById(channelId);
+    if(!channel){
+        throw new ApiError(404, "Channel doesn't exist")
+    }
+
+    const response = await Subscription.countDocuments({
+            channel: new mongoose.Types.ObjectId(channelId)
+    })
+
+
+    return res.status(200).json(new ApiResponse(200, response, "Subscriber Count fetched successfully"));
+})
+
 export {
     toggleSubscription,
     getUserChannelSubscribers,
-    getSubscribedChannels
+    getSubscribedChannels,
+    getSubscribersCount
 }

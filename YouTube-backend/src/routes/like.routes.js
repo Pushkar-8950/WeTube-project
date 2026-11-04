@@ -5,7 +5,9 @@ import {
     toggleCommentLike,
     toggleTweetLike,
     toggleVideoLike,
-    getLikedVideos
+    getLikedVideos,
+    getTotalLikesOnVideo,
+    isVideoLiked
  } from "../controllers/like.controller.js";
 
  const likeRouter = Router();
@@ -14,5 +16,7 @@ import {
  likeRouter.route('/toggle-tweet-like/:tweetId').patch(verifyJWT, toggleTweetLike);
  likeRouter.route('/toggle-video-like/:videoId').patch(verifyJWT, toggleVideoLike);
  likeRouter.route('/get-liked-videos').get(verifyJWT, getLikedVideos);
+ likeRouter.route('/get-total-likes-on-video/:videoId').get(getTotalLikesOnVideo);
+ likeRouter.route('/is-video-liked/:videoId').get(verifyJWT, isVideoLiked);
  
  export default likeRouter;
