@@ -1,17 +1,13 @@
-import { ListSortDescending } from "lucide-react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
+import { MessageSquare, Smile, CircleUserRound, Send } from "lucide-react";
+import EmojiPicker from "emoji-picker-react";
 import CommentCard from "./commentCard";
 import api from "../../services/api";
-import { useRef, useState, useCallback, useEffect } from "react";
-import '../components-css-files/commentSection.css' 
-import EmojiPicker from "emoji-picker-react"
-import { Smile, CircleUserRound } from "lucide-react";
-import {useNavigate} from "react-router-dom"
+import { useAuth } from "../../context/AuthContext";
+import '../components-css-files/commentSection.css';
 
-// props -> video ID, avatarImage of user watching video (current - user)
-
-function Comments(props){
-
-    const navigate = useNavigate();
+function Comments({ videoId, avatarImage }) {
+    const { user } = useAuth();
 
     const [comments, setComments] = useState([]);
     const [page, setPage] = useState(1);
@@ -19,55 +15,48 @@ function Comments(props){
     const [hasMore, setHasMore] = useState(true);
     const [totalComments, setTotalComments] = useState(0);
 
+    const [userComment, setUserComment] = useState("");
+    const [displayPostOptions, setDisplayPostOptions] = useState(false);
+    const [postingComment, setPostingComment] = useState(false);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
     const sentinelRef = useRef();
     const isFetchingRef = useRef(false);
 
-    // Fetch comments on this video (using callback to avoid recreation of function on every render)
+    // Fetch comments
     const fetchComments = useCallback(async (pageNumber) => {
-
-        if(isFetchingRef.current) return;
+        if (isFetchingRef.current) return;
 
         setLoading(true);
         isFetchingRef.current = true;
 
         try {
+            const response = await api.get(`/comments/${videoId}?page=${pageNumber}&limit=10`);
+            const data = response.data?.data?.[0];
 
-            const response = await api.get(`/comments/${props.videoId}?page=${pageNumber}&limit=8`);
-
-            console.log(response);
-
-            const newComments = response.data.data[0].comments;
-
-            setTotalComments(response.data.data.totalComments);
-            setComments(comments => [...comments, ...newComments]);
-            setPage(pageNumber + 1);
-            setHasMore(newComments.length === 8);
-
+            if (data) {
+                const newComments = data.comments || [];
+                setTotalComments(data.totalComments || 0);
+                setComments(prev => pageNumber === 1 ? newComments : [...prev, ...newComments]);
+                setPage(pageNumber + 1);
+                setHasMore(newComments.length === 10);
+            }
         } catch (error) {
-
-            console.log(error);
-
+            console.error("Error fetching comments:", error);
         } finally {
             setLoading(false);
             isFetchingRef.current = false;
         }
+    }, [videoId]);
 
-    }, [props.videoId]);
-
-
-    // fetch the first page on mount or when videoId changes
     useEffect(() => {
-
         setComments([]);
         setPage(1);
         setHasMore(true);
-        setTotalComments(0);
-
         fetchComments(1);
-
     }, [fetchComments]);
 
-    // infinite scrolling (bringing data in chunks from backend)
+    // Infinite scroll
     useEffect(() => {
         if (!hasMore || loading) return;
 
@@ -77,10 +66,7 @@ function Comments(props){
                     fetchComments(page);
                 }
             },
-            {
-                threshold: 0,
-                rootMargin: "200px"
-            }
+            { threshold: 0, rootMargin: "200px" }
         );
 
         if (sentinelRef.current && comments.length > 0) {
@@ -90,137 +76,155 @@ function Comments(props){
         return () => observer.disconnect();
     }, [loading, page, hasMore, fetchComments, comments.length]);
 
-    // Comment input variables
-    const [userComment, setUserComment] = useState("");
-    const [displayPostOptions, setDisplayPostOptions] = useState(false);
+    // Post comment
+    const postComment = async (e) => {
+        if (e) e.preventDefault();
+        if (!userComment.trim() || postingComment) return;
 
-    // Cancel - button functionalities
-    const cancelComment = () => {
-
-        setUserComment("");
-        setDisplayPostOptions(false);
-
-    }
-
-    // Post comment section
-    const [postingComment, setPostingCommment] = useState(false);
-    const postComment = async() => {
-        
+        setPostingComment(true);
         try {
-            setPostingCommment(true);
-            const response = await api.post(`/comments/${props.videoId}`, 
-                {
-                    content: userComment
-                }
-            )
+            const response = await api.post(`/comments/${videoId}`, {
+                content: userComment.trim()
+            });
 
-            console.log(response);
-            setPostingCommment(false);
-            setUserComment("");
+            if (response.data?.success) {
+                const created = response.data.data;
+                // Add current user details to created comment
+                created.ownerDetails = {
+                    _id: user?._id,
+                    username: user?.username,
+                    avatarImage: user?.avatarImage
+                };
+                created.totalLikes = 0;
 
+                setComments(prev => [created, ...prev]);
+                setTotalComments(prev => prev + 1);
+                setUserComment("");
+                setDisplayPostOptions(false);
+                setShowEmojiPicker(false);
+            }
         } catch (error) {
-            console.log(error);
+            console.error("Failed to post comment:", error);
+        } finally {
+            setPostingComment(false);
         }
-    }
+    };
 
-    // emoji section
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const handleDeleteComment = (commentId) => {
+        setComments(prev => prev.filter(c => c._id !== commentId));
+        setTotalComments(prev => Math.max(0, prev - 1));
+    };
 
-    return(
-        <div className="comment-section">
+    const handleUpdateComment = (commentId, newContent) => {
+        setComments(prev => prev.map(c => {
+            if (c._id === commentId) {
+                return { ...c, content: newContent };
+            }
+            return c;
+        }));
+    };
 
+    return (
+        <section className="comment-section">
             <div className="top-left-navbar-cmts-section">
-
                 <span className="total-comments">
                     {totalComments} Comments
                 </span>
-
-                {/* Keep one of these icons */}
-                <ListSortDescending size={20} />
-
             </div>
 
-
+            {/* Add New Comment Box */}
             <div className="add-new-cmt-section">
-
                 <div className="user-avatar-section">
-                    {props.avatarImage?.length ? <img src={props.avatarImage} alt="User avatar" /> : <CircleUserRound size={38}/>}
+                    {avatarImage ? (
+                        <img src={avatarImage} alt="User avatar" />
+                    ) : (
+                        <CircleUserRound size={40} color="var(--accent-light, #d9a47c)" />
+                    )}
                 </div>
 
                 <div className="write-and-post-cmt-section">
-
-                    <div className="write-cmt-section">
-                        <input 
-                            className="cmt-input-box" 
-                            placeholder="Add a comment..." 
+                    <form onSubmit={postComment}>
+                        <input
+                            className="cmt-input-box"
+                            placeholder={user ? "Add a public comment..." : "Sign in to join the conversation..."}
                             type="text"
                             value={userComment}
-                            onChange={(e) => (setUserComment(e.target.value))}
-                            onClick={(e) => (setDisplayPostOptions(true))}
+                            onChange={(e) => setUserComment(e.target.value)}
+                            onFocus={() => setDisplayPostOptions(true)}
+                            disabled={!user}
                         />
-                    </div>
 
-                    { displayPostOptions && 
-                        <div className="post-options-cmt-section">
+                        {displayPostOptions && (
+                            <div className="post-options-cmt-section">
+                                <div className="add-emoji-section">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEmojiPicker(prev => !prev)}
+                                        aria-label="Add emoji"
+                                    >
+                                        <Smile size={20} />
+                                    </button>
 
-                            <div className="add-emoji-section">
-                                <button type="button" onClick={() => setShowEmojiPicker(prev => !prev)}>
-                                    <Smile size={22} />
-                                </button>
+                                    {showEmojiPicker && (
+                                        <div className="emoji-picker-popover">
+                                            <EmojiPicker
+                                                onEmojiClick={(emojiData) => {
+                                                    setUserComment(prev => prev + emojiData.emoji);
+                                                }}
+                                                theme="dark"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
 
-                                {showEmojiPicker && (
-                                    <EmojiPicker
-                                        onEmojiClick={(emojiData) => {
-                                            setUserComment(prev => prev + emojiData.emoji);
+                                <div className="post-options-section">
+                                    <button
+                                        className="cancel-post-btn"
+                                        type="button"
+                                        onClick={() => {
+                                            setUserComment("");
+                                            setDisplayPostOptions(false);
+                                            setShowEmojiPicker(false);
                                         }}
-                                        theme="dark"
-                                    />
-                                )}
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        className={`post-cmt-btn ${userComment.trim() && !postingComment ? "active" : "inactive"}`}
+                                        type="submit"
+                                        disabled={!userComment.trim() || postingComment}
+                                    >
+                                        {postingComment ? "Posting..." : "Comment"}
+                                    </button>
+                                </div>
                             </div>
-        
-                            <div className="post-options-section">
-
-                                <button className="cancel-post-btn" type="button" onClick={cancelComment}>cancel
-                                </button>
-
-                                <button 
-                                    className={`post-cmt-btn ${userComment.trim() && !postingComment ? "active" : "inactive"}`} 
-                                    type="button" 
-                                    onClick={postComment} 
-                                    disabled={!userComment.trim() || postingComment}>comment
-                                </button>
-
-                            </div>
-                            
-
-                        </div>
-                    }
-
+                        )}
+                    </form>
                 </div>
-
             </div>
 
-
-            <section className="comments-grid">
-
-                {comments.map(comment => (
-                    <CommentCard key={comment._id} comment={comment} />
+            {/* Comments List */}
+            <div className="comments-grid">
+                {comments.map((comment) => (
+                    <CommentCard
+                        key={comment._id}
+                        comment={comment}
+                        onDelete={handleDeleteComment}
+                        onUpdate={handleUpdateComment}
+                    />
                 ))}
+            </div>
 
-            </section>
-
-
-            {/* Sentinel : after all the loaded comments */}
             <div ref={sentinelRef} className="comment-sentinel"></div>
 
             {loading && (
-                <p style={{textAlign: "center", padding: "16px", color:"#aaa"}}>
-                    Loading more comments
-                </p>
+                <div className="comment-loading-msg">
+                    <span>Loading comments...</span>
+                </div>
             )}
-
-        </div>
-    )
+        </section>
+    );
 }
 
 export default Comments;

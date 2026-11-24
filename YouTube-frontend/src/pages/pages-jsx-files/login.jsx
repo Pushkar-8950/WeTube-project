@@ -1,92 +1,104 @@
-import React from "react";
-import { useState } from "react";
-import api from "../../services/api";
-import signInImage from "../../assets/signInPageImage.png"
-import { useNavigate } from "react-router-dom";
-import '../pages-css-files/login.css'
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import signInImage from "../../assets/signInPageImage.png";
+import '../pages-css-files/login.css';
+
 function Login() {
-
     const navigate = useNavigate();
+    const { login } = useAuth();
 
-    const [identiFier, setIdentifier] = useState("");
+    const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const handleLogin = async () => {
-
+    const handleLogin = async (e) => {
+        if (e) e.preventDefault();
         setError("");
 
-        if(!identiFier?.trim() || !password?.trim()){
-            setError("Username/Email and password are required");
+        if (!identifier?.trim() || !password?.trim()) {
+            setError("Username or Email and password are required");
             return;
         }
-        
-        let isEmail = false;
-        if(identiFier.includes('@')){
-            isEmail=true;
-        }
-
-        const email = isEmail ? identiFier.trim() : "";
-        const username = isEmail ? "" : identiFier.trim();
 
         setLoading(true);
-        try{
-            const response = await api.post('/users/login', {
-                email, username,
-                password
-            });
-
-            console.log(response.data);
-
-            if(response.data.success){
-                navigate('/');
-            }
-        } 
-        catch(error){
+        try {
+            await login(identifier, password);
+            navigate('/');
+        } catch (err) {
             setError(
-                error.response?.data?.message || "Login failed. Please try again."
+                err.response?.data?.message || err.message || "Login failed. Please check your credentials."
             );
-
-            console.log(error.response?.data);
-        } 
-        finally{
+        } finally {
             setLoading(false);
         }
-    }   
-    
+    };
+
     return (
         <div className="login-page">
-            
             <div className="parent-container">
-                <div className="credentials-container">
-
-                    <span className="headerName">WeTube</span>
-                    <span className="headerStatement">Login to your account</span>
+                <form className="credentials-container" onSubmit={handleLogin}>
+                    <Link to="/" className="headerName">
+                        We<span style={{ color: "var(--accent-secondary, #c68a5c)" }}>Tube</span>
+                    </Link>
+                    <span className="headerStatement">Sign in to continue</span>
+                    
                     <div className="new-user-header">
                         <span className="new-user-header-statment">
                             Don't have an account?
                         </span>
-                        <button className="sign-up-btn">
+                        <Link to="/register" className="sign-up-btn">
                             Sign Up
-                        </button>
-                    </div>               
-                    
-                    <button className="google-auth-btn">
-                        {/* Google colorful icon */}
-                        Google
-                    </button>
-                    
-                    <span className="or-seprator">or</span>
+                        </Link>
+                    </div>
 
-                    <input className="email-input-field" placeholder="Enter email or Username" type="text" value={identiFier} onChange={(e)=> {setIdentifier(e.target.value)}}/>
-                    <input className="password-input-field" placeholder="Enter password" type="password" value={password} onChange={(e) => (setPassword(e.target.value))} />
+                    <button 
+                        type="button" 
+                        className="google-auth-btn"
+                        onClick={() => setError("Google login is simulated. Use your username/email.")}
+                    >
+                        Sign in with Google
+                    </button>
+
+                    <div className="or-seprator">or</div>
+
+                    <input
+                        className="email-input-field"
+                        placeholder="Username or Email address"
+                        type="text"
+                        value={identifier}
+                        onChange={(e) => setIdentifier(e.target.value)}
+                        autoComplete="username"
+                        required
+                    />
+
+                    <input
+                        className="password-input-field"
+                        placeholder="Enter your password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        autoComplete="current-password"
+                        required
+                    />
+
                     {error && <p className="login-error">{error}</p>}
-                    <button className="next-btn" onClick={handleLogin} disabled={loading}>
-                        {loading ? 'Loading...' : "Next"}
+
+                    <button 
+                        type="submit" 
+                        className="next-btn" 
+                        disabled={loading}
+                    >
+                        {loading ? "Signing in..." : "Sign In"}
                     </button>
 
-                </div>
+                    <div style={{ marginTop: "24px", textAlign: "center" }}>
+                        <Link to="/" style={{ color: "#888", fontSize: "13px" }}>
+                            ← Back to Browse
+                        </Link>
+                    </div>
+                </form>
 
                 <div className="image-container">
                     <img src={signInImage} alt="WeTube video platform" />
@@ -121,11 +133,9 @@ function Login() {
                         </div>
                     </div>
                 </div>
-
             </div>
-
         </div>
-    )
-};
+    );
+}
 
 export default Login;

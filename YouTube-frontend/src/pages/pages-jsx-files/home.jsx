@@ -1,83 +1,85 @@
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import HomeNavbar from "../../components/components-jsx-files/HomeNavbar";
 import HomeSidebar from "../../components/components-jsx-files/HomeSidebar";
 import VideoCard from "../../components/components-jsx-files/videoCard";
-import '../pages-css-files/home.css'
-import { useRef, useEffect, useState, useCallback } from "react";
+import AddToPlaylistModal from "../../components/components-jsx-files/AddToPlaylistModal";
 import api from "../../services/api";
+import { Sparkles } from "lucide-react";
+import '../pages-css-files/home.css';
 
-function Home(){
-
+function Home() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
     const toggleIsSidebarOpen = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
 
-    // creates an object with .current property
     const sidebarRef = useRef(null);
     const menuButtonRef = useRef(null);
 
     useEffect(() => {
-        function handleClickOutside(event){
-            if(sidebarRef.current && !sidebarRef.current.contains(event.target) && !menuButtonRef.current?.contains(event.target)){
+        function handleClickOutside(event) {
+            if (sidebarRef.current && !sidebarRef.current.contains(event.target) && !menuButtonRef.current?.contains(event.target)) {
                 setIsSidebarOpen(false);
             }
         }
-
         document.addEventListener("click", handleClickOutside);
-
         return () => {
             document.removeEventListener("click", handleClickOutside);
         };
-    }, []);  
-    
-    /* Implementing infinite scrolling using : IntersectionObserver 
-        
-        It detects when a particular element enters the user's viewport.
-        
-        Eg:  { <div ref={sentinelRef}> </div> } -> when this component will enter user's viewport then it will be detected
+    }, []);
 
-        syntax: callback -> runs when the observing element enters or leaves the user's viewport 
-                options -> controls when and where detection happens
-    */
-   const [videos, setVideos] = useState([]); 
-   const [loading, setLoading] = useState(false);
-   const [page, setPage] = useState(1);
-   const [hasMore, setHasMore] = useState(true);
+    // Video fetching & infinite scroll
+    const [videos, setVideos] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [activeCategory, setActiveCategory] = useState("All");
 
-   const sentinelRef = useRef(); // pointing to the sentinel
-   const isFetchingRef = useRef(false);
+    // Modal state for saving to playlist
+    const [playlistModalVideoId, setPlaylistModalVideoId] = useState(null);
 
-   // Function for fetching videos for homepage (using callback to persist between renders)
-   const fetchVideos = useCallback(async (pageNumber) => {
+    const sentinelRef = useRef();
+    const isFetchingRef = useRef(false);
 
-        if(isFetchingRef.current) return;
+    const categories = [
+        "All",
+        "Recently Uploaded",
+        "Gaming",
+        "Music",
+        "Podcasts",
+        "Technology",
+        "Creative",
+        "Community"
+    ];
+
+    const fetchVideos = useCallback(async (pageNumber) => {
+        if (isFetchingRef.current) return;
 
         setLoading(true);
-        isFetchingRef.current=true;
+        isFetchingRef.current = true;
         try {
             const response = await api.get(`/videos/get-home-videos?page=${pageNumber}&limit=8`);
+            const newVideos = response.data?.data?.videos || [];
 
-            console.log(response);
-            const newVideos = response.data.data.videos;
-            setVideos(prev => [...prev, ...newVideos]);
+            setVideos(prev => pageNumber === 1 ? newVideos : [...prev, ...newVideos]);
             setPage(pageNumber + 1);
-            setHasMore(newVideos.length === 8)
-
-        } catch (error){
-            console.log(error);
+            setHasMore(newVideos.length === 8);
+        } catch (error) {
+            console.error("Error fetching homepage videos:", error);
         } finally {
             setLoading(false);
-            isFetchingRef.current=false;
+            setInitialLoading(false);
+            isFetchingRef.current = false;
         }
+    }, []);
 
-   }, []);
-
-   // fetch the first page on mount
-   useEffect(() => {
+    // Fetch initial on mount
+    useEffect(() => {
         fetchVideos(1);
     }, [fetchVideos]);
-   
+
+    // Infinite scrolling
     useEffect(() => {
         if (!hasMore || loading) return;
 
@@ -89,7 +91,7 @@ function Home(){
             },
             {
                 threshold: 0,
-                rootMargin: "200px"
+                rootMargin: "250px"
             }
         );
 
@@ -100,35 +102,107 @@ function Home(){
         return () => observer.disconnect();
     }, [loading, page, hasMore, fetchVideos, videos.length]);
 
+    // Filter videos by category if needed
+    const displayedVideos = videos.filter(video => {
+        if (activeCategory === "All") return true;
+        if (activeCategory === "Recently Uploaded") {
+            const videoDate = new Date(video.createdAt);
+            const now = new Date();
+            const diffDays = (now - videoDate) / (1000 * 60 * 60 * 24);
+            return diffDays <= 7;
+        }
+        const text = `${video.videoTitle || ''} ${video.description || ''}`.toLowerCase();
+        return text.includes(activeCategory.toLowerCase());
+    });
+
     return (
         <div className="youtube-home">
-            <HomeNavbar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleIsSidebarOpen} menuButtonRef={menuButtonRef}/>
-            <div ref={sidebarRef}>
-                <HomeSidebar isSidebarOpen={isSidebarOpen}/>
-            </div>
-            
-             <main className="main-content">
-                <nav className="category-bar">
-                    <button className="active">All</button>
-                    <button>Music</button>
-                    <button>Gaming</button>
-                    <button>Podcasts</button>
-                    <button>Technology</button>
-                    <button>Recently uploaded</button>
-                </nav>
+            <HomeNavbar
+                isSidebarOpen={isSidebarOpen}
+                toggleSidebar={toggleIsSidebarOpen}
+                menuButtonRef={menuButtonRef}
+            />
 
-                <section className="video-grid">
-                    {videos.map(video => (
-                        <VideoCard key={video._id} video={video} />
-                    ))}
-                </section>
-                
-                {/* Sentinental : After all the videos */}
-                <div ref={sentinelRef} className="sentinel"></div>
-                {loading && <p style={{ textAlign: "center", padding: "16px", color: "#aaa" }}>Loading more videos...</p>}
-            </main>
+            <div className="home-layout-body">
+                <div ref={sidebarRef}>
+                    <HomeSidebar isSidebarOpen={isSidebarOpen} />
+                </div>
+
+                <main className="main-content">
+                    {/* Categories Bar */}
+                    <nav className="category-bar">
+                        {categories.map((cat) => (
+                            <button
+                                key={cat}
+                                className={activeCategory === cat ? "active" : ""}
+                                onClick={() => setActiveCategory(cat)}
+                            >
+                                {cat === "Recently Uploaded" && <Sparkles size={14} style={{ marginRight: 6 }} />}
+                                {cat}
+                            </button>
+                        ))}
+                    </nav>
+
+                    {/* Loading Skeletons */}
+                    {initialLoading ? (
+                        <div className="video-grid">
+                            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                                <div key={n} className="video-skeleton-card">
+                                    <div className="skeleton-thumb"></div>
+                                    <div className="skeleton-info">
+                                        <div className="skeleton-avatar"></div>
+                                        <div className="skeleton-text">
+                                            <div className="skeleton-line full"></div>
+                                            <div className="skeleton-line half"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : displayedVideos.length > 0 ? (
+                        <section className="video-grid">
+                            {displayedVideos.map((video) => (
+                                <VideoCard
+                                    key={video._id}
+                                    video={video}
+                                    onAddToPlaylist={(v) => setPlaylistModalVideoId(v._id)}
+                                />
+                            ))}
+                        </section>
+                    ) : (
+                        <div className="no-videos-empty-state">
+                            <Sparkles size={48} color="var(--accent-secondary, #c68a5c)" />
+                            <h2>No videos found in this category</h2>
+                            <p>Try selecting "All" or check back later as creators upload new content.</p>
+                            <button
+                                className="reset-category-btn"
+                                onClick={() => setActiveCategory("All")}
+                            >
+                                Show All Videos
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Sentinel for infinite scroll */}
+                    <div ref={sentinelRef} className="sentinel"></div>
+
+                    {loading && !initialLoading && (
+                        <div className="loading-more-container">
+                            <div className="custom-spinner"></div>
+                            <span>Loading more videos...</span>
+                        </div>
+                    )}
+                </main>
+            </div>
+
+            {/* Save to Playlist Modal */}
+            <AddToPlaylistModal
+                isOpen={!!playlistModalVideoId}
+                onClose={() => setPlaylistModalVideoId(null)}
+                videoId={playlistModalVideoId}
+            />
         </div>
-    )
+    );
 }
 
 export default Home;

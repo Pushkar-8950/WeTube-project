@@ -1,330 +1,279 @@
-
-import '../components-css-files/videoPlayer.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import api from '../../services/api';
+import { useAuth } from "../../context/AuthContext";
 import {
     ThumbsUp,
     ThumbsDown,
     Share2,
-    Download,
-    MoreHorizontal,
-    Sparkles
+    ListPlus,
+    Bell,
+    Check,
+    MoreHorizontal
 } from "lucide-react";
-import { useState, useEffect } from "react";
-import api from '../../services/api';
-import { useNavigate } from 'react-router-dom';
+import '../components-css-files/videoPlayer.css';
 
-function VideoPlayer(props) {
-
+function VideoPlayer({ videoId, onOpenPlaylistModal }) {
     const navigate = useNavigate();
+    const { user } = useAuth();
 
-    const videoId = props.videoId;
-
-     // get video detailss inside a response matching videoId
+    const [video, setVideo] = useState(null);
     const [totalLikes, setTotalLikes] = useState(0);
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [isVideoLiked, setIsVideoLiked] = useState(false);
-    const [views, setViews] = useState(0);
-    const [createdAt, setCreatedAt] = useState("");
-    const [description, setDescription] = useState("");
-    const [title, setTitle] = useState("");
-    const [totalSubscribers, setTotalSubscribers] = useState(0);
-    const [channelId, setChannelId] = useState("");
-    const [channelName, setChannelName] = useState("");
-    const [videoFile, setVideoFile] = useState("");
-    const [avatarImage, setAvatarImage] = useState("");
-    const [thumbnail, setThumbnail] = useState("");
-
-    const [loading, setLoading] = useState(false);
     const [isVideoDisliked, setIsVideoDisliked] = useState(false);
+    const [totalSubscribers, setTotalSubscribers] = useState(0);
 
-    // Response Format
-    /*
-        response format: 
-            {
-                "statusCode": 200,
-                "data": [
-                    {
-                        "_id": "6ae1db039c9f52f857a3bb5b",
-                        "videoTitle": "Sunil Jhatu Video",
-                        "thumbnail": "http://res.cloudinary.com/bcplcdtk/image/upload/v1793186561/fqsugk5ffwll5hgdur6i.png",
-                        "description": "about metrology project",
-                        "duration": 46.033333,
-                        "views": 0,
-                        "videoFile": "http://res.cloudinary.com/bcplcdtk/video/upload/v1793205027/u6ucziee9m6fd3jyotyp.mp4",
-                        "isPublished": true,
-                        "owner": "6acc90521fdb1db40cba2d54",
-                        "createdAt": "2026-10-28T11:22:43.143Z",
-                        "updatedAt": "2026-10-28T11:22:43.143Z",
-                        "__v": 0,
-                        "ownerDetails": [
-                            {
-                                "username": "pushkar_sehrawat",
-                                "avatarImage": "http://res.cloudinary.com/bcplcdtk/image/upload/v1791807538/zlgwvn5cq0frvfgfstln.png"
-                            }
-                        ],
-                        "subscribed": [
-                            {
-                                "_id": "6aeb05324abd305c42a830bc",
-                                "subscriber": "6ad9c04a747746fa962de3be",
-                                "channel": "6acc90521fdb1db40cba2d54",
-                                "createdAt": "2026-11-04T10:13:06.558Z",
-                                "updatedAt": "2026-11-04T10:13:06.558Z",
-                                "__v": 0
-                            }
-                        ]
-                    }
-                ],
-                "message": "Video Fetched Successfully",
-                "success": true
-            }
+    const [loading, setLoading] = useState(true);
+    const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false);
+    const [isLikingVideo, setIsLikingVideo] = useState(false);
+    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
-    */
-    
-    useEffect(()=>{
-
-        setIsSubscribed(false);
-        setIsVideoLiked(false);
+    useEffect(() => {
+        let isMounted = true;
         setLoading(true);
-        
-        const fetchVideoData = async() => {
 
+        const fetchVideoData = async () => {
             try {
+                // Fetch video details
+                const videoRes = await api.get(`/videos/get-video-by-id/${videoId}`);
+                const videoData = videoRes.data?.data?.[0];
 
-                // api call to get video details from backend
-                const response1 = await api.get(`/videos/get-video-by-id/${videoId}`);
-                const videoResponse = response1.data.data[0];
+                if (!videoData) return;
+                if (!isMounted) return;
 
-                console.log(videoResponse);
+                setVideo(videoData);
+                setIsSubscribed(videoData.subscribed?.length > 0);
 
-                // api calls to get subscribers, totalLikes and liked status
-                
-                    // Using promise.all(), all three request will run simultaneously reducing the overall time to load page. All three are independent of each other so we are able of combining them 
-                const [response2, response3, response4] = await Promise.all([
-                    api.get(`/subscriptions/get-subscribers-count/${videoResponse.owner}`),
+                // Fetch likes count, like status, subscribers count in parallel
+                const [subCountRes, likesRes, likeStatusRes] = await Promise.all([
+                    api.get(`/subscriptions/get-subscribers-count/${videoData.owner}`),
                     api.get(`/likes/get-total-likes-on-video/${videoId}`),
-                    api.get(`/likes/is-video-liked/${videoId}`)
+                    user ? api.get(`/likes/is-video-liked/${videoId}`) : Promise.resolve({ data: { data: false } })
                 ]);
 
-                const subscriberResponse = response2.data.data;
-                const likesResponse = response3.data.data[0];
-                const likeStatus = response4.data.data;
+                if (!isMounted) return;
 
-                console.log(videoResponse, subscriberResponse, likesResponse, likeStatus);
-
-                // Initialize data
-                setIsSubscribed(videoResponse.subscribed.length > 0);
-                setViews(videoResponse.views);
-                setCreatedAt(videoResponse.createdAt);
-                setDescription(videoResponse.description);
-                setTitle(videoResponse.videoTitle);
-                setChannelId(videoResponse.owner);
-                setChannelName(videoResponse.ownerDetails[0].username);
-                setVideoFile(videoResponse.videoFile);
-                setAvatarImage(videoResponse.ownerDetails[0].avatarImage);
-                setThumbnail(videoResponse.thumbnail);
-                setTotalSubscribers(subscriberResponse);
-                setTotalLikes(likesResponse.totalLikes);
-                setIsVideoLiked(likeStatus);
-
-            } catch (error) {
-                console.log(error);
+                setTotalSubscribers(subCountRes.data?.data || 0);
+                setTotalLikes(likesRes.data?.data?.[0]?.totalLikes || 0);
+                setIsVideoLiked(likeStatusRes.data?.data || false);
+            } catch (err) {
+                console.error("Error loading video details:", err);
             } finally {
-                setLoading(false);
+                if (isMounted) setLoading(false);
             }
-        }
+        };
 
         fetchVideoData();
 
-    }, [videoId]);
+        return () => {
+            isMounted = false;
+        };
+    }, [videoId, user]);
 
-    // Logic for subscribe btn
-    const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false);
+    const toggleSubscription = async () => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
 
-    const setSubscribeButton = () => {
-        setIsSubscribed(prev=>!prev);
-    }
-
-    const toggleSubscription = async() => {
-
-        setIsSubscriptionLoading(true); // to avoid multiple api request clicking btn multple times
-
+        setIsSubscriptionLoading(true);
         try {
-            
-            const response = await api.patch(`/subscriptions/toggle/${channelId}`);
-            setSubscribeButton();
-
-        } catch (error) {
-            
-            console.log(error);
+            await api.patch(`/subscriptions/toggle/${video.owner}`);
+            setIsSubscribed(prev => !prev);
+            setTotalSubscribers(prev => isSubscribed ? Math.max(0, prev - 1) : prev + 1);
+        } catch (err) {
+            console.error("Error toggling subscription:", err);
         } finally {
             setIsSubscriptionLoading(false);
         }
-    }
+    };
 
-    // Logic for like and dislike btns
-    const [isLikingVideo, setIsLikingVideo] = useState(false);
-    const likeVideo = async() => {
+    const handleLike = async () => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
         setIsLikingVideo(true);
-        try{
-
-            // api call for liking the video
+        try {
             await api.patch(`/likes/toggle-video-like/${videoId}`);
-            setIsVideoLiked(prev=>!prev);
+            const newLiked = !isVideoLiked;
+            setIsVideoLiked(newLiked);
             setIsVideoDisliked(false);
-            setTotalLikes(prev=>isVideoLiked ? prev-1 : prev+1);
-        } catch(error){
-            console.log(error);
-        } finally{
+            setTotalLikes(prev => newLiked ? prev + 1 : Math.max(0, prev - 1));
+        } catch (err) {
+            console.error("Error liking video:", err);
+        } finally {
             setIsLikingVideo(false);
         }
-    }
+    };
 
-    const dislikeVideo = async () => {
-
-        if(isVideoLiked){
+    const handleDislike = () => {
+        if (isVideoLiked) {
             setIsVideoLiked(false);
-            setTotalLikes(prev=>prev-1);
-        } 
+            setTotalLikes(prev => Math.max(0, prev - 1));
+        }
+        setIsVideoDisliked(prev => !prev);
+    };
 
-        setIsVideoDisliked(prev=>!prev);
-    }
+    const handleShare = async () => {
+        const url = window.location.href;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: video?.videoTitle,
+                    url
+                });
+            } catch (err) {
+                if (err.name !== "AbortError") {
+                    navigator.clipboard.writeText(url);
+                    alert("Video link copied to clipboard!");
+                }
+            }
+        } else {
+            navigator.clipboard.writeText(url);
+            alert("Video link copied to clipboard!");
+        }
+    };
 
-
-    // Conditional rendering
     if (loading) {
         return (
-            <div className="video-loading">
-                <div className="loader"></div>
-                <p>Loading video...</p>
+            <div className="video-player-loading-skeleton">
+                <div className="skeleton-player-screen"></div>
+                <div className="skeleton-player-title"></div>
             </div>
         );
     }
 
+    if (!video) {
+        return (
+            <div className="video-not-found-msg">
+                <h2>Video not found or has been removed</h2>
+                <button onClick={() => navigate('/')} className="btn-return-home">
+                    Back to Home
+                </button>
+            </div>
+        );
+    }
+
+    const channelUsername = video.ownerDetails?.[0]?.username;
+    const channelAvatar = video.ownerDetails?.[0]?.avatarImage;
+
     return (
-
         <div className="video-player-section">
-
-            {/* Video player */}
+            {/* Native HTML5 Video Element with Controls */}
             <div className="video-container">
                 <video
                     className="main-video"
-                    src={videoFile}
-                    poster={thumbnail}
+                    src={video.videoFile}
+                    poster={video.thumbnail}
                     controls
+                    autoPlay
                 />
             </div>
 
-            {/* Video title */}
-            <h2 className="main-video-title">
-                {title}
-            </h2>
+            {/* Video Title */}
+            <h1 className="main-video-title">
+                {video.videoTitle}
+            </h1>
 
-            {/* Channel information and video actions */}
+            {/* Channel Info & Actions Bar */}
             <div className="video-channel-actions">
-
-                {/* Channel information */}
                 <div className="video-channel-info">
-
                     <img
                         className="video-channel-avatar"
-                        src={avatarImage}
-                        alt="Channel avatar"
-                        onClick={()=>navigate(`/channel/${channelId}`)}
+                        src={channelAvatar || "/default-avatar.png"}
+                        alt={channelUsername}
+                        onClick={() => channelUsername && navigate(`/channel/${channelUsername}`)}
                     />
 
                     <div className="video-channel-details">
-                        <h4 
-                            onClick={()=>navigate(`/channel/${channelId}`)}
-                        >{channelName}</h4>
-                        <p>
-                            {totalSubscribers} subscribers
-                        </p>
+                        <h4 onClick={() => channelUsername && navigate(`/channel/${channelUsername}`)}>
+                            {channelUsername}
+                        </h4>
+                        <p>{totalSubscribers} subscribers</p>
                     </div>
 
-                    <button 
+                    <button
                         className={`subscribe-btn ${isSubscribed ? "subscribed" : ""}`}
                         onClick={toggleSubscription}
                         disabled={isSubscriptionLoading}
                     >
-                        {isSubscriptionLoading
-                            ? "Please wait..."
-                            : isSubscribed ? "Unsubscribe" : "Subscribe"
-                        }
-
+                        {isSubscribed ? (
+                            <>
+                                <Check size={16} />
+                                <span>Subscribed</span>
+                            </>
+                        ) : (
+                            <>
+                                <Bell size={16} />
+                                <span>Subscribe</span>
+                            </>
+                        )}
                     </button>
-
                 </div>
 
-                {/* Video actions */}
                 <div className="video-actions">
-
                     <div className="like-dislike-group">
-                        <button className="video-action-btn">
-                            <ThumbsUp 
-                                size={21} 
-                                fill={isVideoLiked ? "white" : "none"}
-                                onClick={likeVideo}
-                                disabled={isLikingVideo}
-                            />
+                        <button
+                            className={`video-action-btn ${isVideoLiked ? "active-like" : ""}`}
+                            onClick={handleLike}
+                            disabled={isLikingVideo}
+                            title="I like this"
+                        >
+                            <ThumbsUp size={18} fill={isVideoLiked ? "currentColor" : "none"} />
                             <span>{totalLikes}</span>
                         </button>
 
                         <div className="action-divider"></div>
 
-                        <button className="video-action-btn dislike-action">
-                            <ThumbsDown 
-                                size={21} 
-                                onClick={dislikeVideo}
-                                fill={isVideoDisliked ? "white" : "none"}
-                                disabled={isLikingVideo}
-                            />
+                        <button
+                            className={`video-action-btn dislike-action ${isVideoDisliked ? "active-dislike" : ""}`}
+                            onClick={handleDislike}
+                            title="I dislike this"
+                        >
+                            <ThumbsDown size={18} fill={isVideoDisliked ? "currentColor" : "none"} />
                         </button>
                     </div>
 
-                    <button className="round-action-btn">
-                        <Share2 size={21} />
+                    <button className="round-action-btn" onClick={handleShare} title="Share video">
+                        <Share2 size={18} />
                         <span>Share</span>
                     </button>
 
-                    <button className="round-action-btn">
-                        <Sparkles size={21} />
+                    <button
+                        className="round-action-btn"
+                        onClick={onOpenPlaylistModal}
+                        title="Save to playlist"
+                    >
+                        <ListPlus size={18} />
+                        <span>Save</span>
                     </button>
-
-                    <button className="round-action-btn">
-                        <Download size={21} />
-                    </button>
-
-                    <button className="round-action-btn">
-                        <MoreHorizontal size={23} />
-                    </button>
-
                 </div>
-
             </div>
 
-            {/* Video description */}
+            {/* Video Description Box */}
             <div className="video-description">
-
                 <div className="video-description-stats">
-                    <span>{views} views</span>
-                    <span>{new Date(createdAt).toLocaleDateString()}</span>
-
-                    {/* {video.tags?.map((tag, index) => (
-                        <span key={index} className="video-tag">
-                            #{tag}
-                        </span>
-                    ))} */}
+                    <span>{video.views} views</span>
+                    <span>•</span>
+                    <span>{new Date(video.createdAt).toLocaleDateString()}</span>
                 </div>
 
-                <div className="video-description-content">
-                    {description}
+                <div className={`video-description-content ${isDescriptionExpanded ? "expanded" : ""}`}>
+                    {video.description}
                 </div>
 
-                <button className="description-more-btn">
-                    ...more
-                </button>
-
+                {video.description?.length > 120 && (
+                    <button
+                        className="description-more-btn"
+                        onClick={() => setIsDescriptionExpanded(prev => !prev)}
+                    >
+                        {isDescriptionExpanded ? "Show less" : "...more"}
+                    </button>
+                )}
             </div>
-
         </div>
     );
 }

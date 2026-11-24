@@ -1,0 +1,250 @@
+/* ===================================================================
+   Liked Videos Page (Terracotta & Obsidian YouTube Theme)
+=================================================================== */
+
+.liked-page-wrapper {
+  min-height: 100vh;
+  background-color: var(--bg-main, #0f0c0a);
+  color: var(--text-primary, #fdf9f6);
+}
+
+.liked-layout {
+  display: flex;
+  min-height: calc(100vh - 64px);
+}
+
+.liked-main {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 36px 60px;
+  display: flex;
+  gap: 36px;
+  min-width: 0;
+}
+
+/* Hero Left Card */
+.liked-playlist-hero {
+  width: 340px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #251a13 0%, #15100d 100%);
+  border: 1px solid var(--border-medium, #3b2a20);
+  border-radius: 16px;
+  padding: 24px;
+  height: fit-content;
+  position: sticky;
+  top: 88px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.hero-thumb-box {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background: #18120e;
+  border: 1px solid var(--border-subtle, #291e17);
+}
+
+.hero-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-thumb-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-secondary, #c68a5c);
+  background: var(--bg-card, #1b1410);
+}
+
+.liked-playlist-hero h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary, #fdf9f6);
+  margin-bottom: 8px;
+}
+
+.hero-author-row {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-light, #d9a47c);
+  margin-bottom: 6px;
+}
+
+.hero-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted, #887467);
+  margin-bottom: 24px;
+}
+
+.privacy-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-play-all {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent-primary, #a96536);
+  color: #fff;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: 0.2s;
+  box-shadow: 0 4px 14px rgba(169, 101, 54, 0.4);
+}
+
+.btn-play-all:hover {
+  background: var(--accent-hover, #874c27);
+}
+
+/* Videos List */
+.liked-videos-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.liked-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.liked-video-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.liked-video-row:hover {
+  background: var(--bg-card, #1b1410);
+}
+
+.liked-video-row:hover .liked-title {
+  color: var(--accent-light, #d9a47c);
+}
+
+.liked-index {
+  font-size: 14px;
+  color: var(--text-muted, #887467);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.liked-thumb-wrap {
+  position: relative;
+  width: 160px;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #19120e;
+  border: 1px solid var(--border-subtle, #291e17);
+}
+
+.liked-thumb-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.liked-duration {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(12, 9, 7, 0.9);
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.liked-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.liked-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #fdf9f6);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.liked-channel-name {
+  font-size: 12px;
+  color: var(--text-secondary, #c8b4a6);
+}
+
+.liked-stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted, #887467);
+}
+
+.liked-empty,
+.liked-login-prompt {
+  max-width: 440px;
+  margin: 100px auto;
+  text-align: center;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card, #1b1410);
+  border: 1px solid var(--border-medium, #3b2a20);
+  border-radius: 12px;
+}
+
+.liked-primary-btn {
+  padding: 10px 22px;
+  background: var(--accent-primary, #a96536);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 20px;
+  font-size: 13px;
+  text-decoration: none;
+  margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .liked-main {
+    flex-direction: column;
+    padding: 20px 16px 40px;
+  }
+  .liked-playlist-hero {
+    width: 100%;
+    position: static;
+  }
+}

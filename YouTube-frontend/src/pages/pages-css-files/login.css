@@ -472,3 +472,56 @@ body {
     margin: 0px 0 12px;
     
 }
+
+
+/* ==============================
+   Registration Page Extensions
+================================= */
+.register-container {
+    padding-top: 4vh !important;
+}
+
+.upload-preview-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.upload-avatar-label,
+.upload-cover-label {
+    flex: 1;
+    border: 1px dashed #a96536;
+    border-radius: 6px;
+    background: #fdf8f4;
+    cursor: pointer;
+    overflow: hidden;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.upload-avatar-label:hover,
+.upload-cover-label:hover {
+    background: #f7eee7;
+    border-color: #874c27;
+}
+
+.avatar-placeholder,
+.cover-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #a96536;
+    font-weight: 600;
+}
+
+.avatar-preview-img,
+.cover-preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

@@ -1,0 +1,324 @@
+/* ===================================================================
+   Playlist Detail Page (Terracotta & Obsidian YouTube Theme)
+=================================================================== */
+
+.pl-detail-page-wrapper {
+  min-height: 100vh;
+  background-color: var(--bg-main, #0f0c0a);
+  color: var(--text-primary, #fdf9f6);
+}
+
+.pl-detail-layout {
+  display: flex;
+  min-height: calc(100vh - 64px);
+}
+
+.pl-detail-main {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 36px 60px;
+  display: flex;
+  gap: 36px;
+  min-width: 0;
+}
+
+/* Hero Left Column */
+.pl-detail-hero {
+  width: 340px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #241913 0%, #15100d 100%);
+  border: 1px solid var(--border-medium, #3b2a20);
+  border-radius: 16px;
+  padding: 24px;
+  height: fit-content;
+  position: sticky;
+  top: 88px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.hero-thumb-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background: #18120e;
+  border: 1px solid var(--border-subtle, #291e17);
+}
+
+.hero-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-thumb-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-secondary, #c68a5c);
+  background: var(--bg-card, #1b1410);
+}
+
+.pl-detail-hero h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary, #fdf9f6);
+  margin-bottom: 8px;
+}
+
+.hero-desc {
+  font-size: 13px;
+  color: var(--text-secondary, #c8b4a6);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted, #887467);
+  margin-bottom: 20px;
+}
+
+.btn-play-all-hero {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent-primary, #a96536);
+  color: #fff;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: 0.2s;
+  box-shadow: 0 4px 14px rgba(169, 101, 54, 0.4);
+}
+
+.btn-play-all-hero:hover {
+  background: var(--accent-hover, #874c27);
+}
+
+.owner-buttons-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.hero-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  background: var(--bg-card, #1b1410);
+  border: 1px solid var(--border-medium, #3b2a20);
+  border-radius: 6px;
+  color: var(--text-secondary, #c8b4a6);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.hero-action-btn:hover {
+  background: var(--bg-card-hover, #261c16);
+  color: #fff;
+}
+
+.hero-action-btn.danger:hover {
+  color: #e04f4f;
+}
+
+/* Videos List */
+.pl-detail-videos-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.pl-videos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pl-video-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pl-video-item:hover {
+  background: var(--bg-card, #1b1410);
+}
+
+.pl-video-item:hover h4 {
+  color: var(--accent-light, #d9a47c);
+}
+
+.item-index {
+  font-size: 14px;
+  color: var(--text-muted, #887467);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.item-thumb-box {
+  position: relative;
+  width: 150px;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #19120e;
+  border: 1px solid var(--border-subtle, #291e17);
+}
+
+.item-thumb-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.item-duration {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(12, 9, 7, 0.9);
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-info h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #fdf9f6);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.item-owner {
+  font-size: 12px;
+  color: var(--text-secondary, #c8b4a6);
+}
+
+.item-views {
+  font-size: 11px;
+  color: var(--text-muted, #887467);
+}
+
+.btn-remove-video {
+  padding: 8px;
+  color: var(--text-muted, #887467);
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.pl-video-item:hover .btn-remove-video {
+  opacity: 1;
+}
+
+.btn-remove-video:hover {
+  background: var(--bg-card-hover, #261c16);
+  color: #e04f4f;
+}
+
+.pl-empty-videos,
+.pl-detail-error {
+  max-width: 440px;
+  margin: 100px auto;
+  text-align: center;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card, #1b1410);
+  border: 1px solid var(--border-medium, #3b2a20);
+  border-radius: 12px;
+}
+
+.btn-browse-videos,
+.btn-back-pl {
+  padding: 10px 22px;
+  background: var(--accent-primary, #a96536);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 20px;
+  font-size: 13px;
+  text-decoration: none;
+  margin-top: 8px;
+}
+
+/* Edit Modal */
+.edit-pl-modal {
+  background: var(--bg-modal, #18120e);
+  border: 1px solid var(--border-medium, #3b2a20);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 460px;
+}
+
+.edit-pl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle, #291e17);
+}
+
+.edit-pl-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.edit-pl-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle, #291e17);
+}
+
+@media (max-width: 900px) {
+  .pl-detail-main {
+    flex-direction: column;
+    padding: 20px 16px 40px;
+  }
+  .pl-detail-hero {
+    width: 100%;
+    position: static;
+  }
+}
